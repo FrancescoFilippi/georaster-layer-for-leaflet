@@ -153,7 +153,7 @@ var GeoRasterLayer = L.GridLayer.extend({
     var pixelWidth = georaster.pixelWidth;
     var xmin = georaster.xmin;
     var ymax = georaster.ymax;
-    var raster = this.raster;
+    var rasters = this;
 
     // these values are used so we don't try to sample outside of the raster
     var minLng = this._bounds.getWest();
