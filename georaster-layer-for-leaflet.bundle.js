@@ -3,9 +3,13 @@
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 /* global L, proj4 */
-var _require = require('./utils/utm.js'),
-    isUTM = _require.isUTM,
-    getProj4String = _require.getProj4String;
+// const {
+//   isUTM,
+//   getProj4String,
+// } = require('./utils/utm.js');
+
+var isUTM = require('./utils/utm.js');
+var getProj4String = require('./utils/utm.js');
 
 var chroma = require('chroma-js');
 
@@ -59,15 +63,24 @@ var GeoRasterLayer = L.GridLayer.extend({
   getRasters: function getRasters(options) {
     var _this = this;
 
-    var tileNwPoint = options.tileNwPoint,
-        heightOfSampleInScreenPixels = options.heightOfSampleInScreenPixels,
-        widthOfSampleInScreenPixels = options.widthOfSampleInScreenPixels,
-        coords = options.coords,
-        numberOfSamplesAcross = options.numberOfSamplesAcross,
-        numberOfSamplesDown = options.numberOfSamplesDown,
-        ymax = options.ymax,
-        xmin = options.xmin;
-
+    // const {
+    //   tileNwPoint,
+    //   heightOfSampleInScreenPixels,
+    //   widthOfSampleInScreenPixels,
+    //   coords,
+    //   numberOfSamplesAcross,
+    //   numberOfSamplesDown,
+    //   ymax,
+    //   xmin,
+    // } = options;
+    var tileNwPoint = options.tileNwPoint;
+    var heightOfSampleInScreenPixels = options.heightOfSampleInScreenPixels;
+    var widthOfSampleInScreenPixels = options.widthOfSampleInScreenPixels;
+    var coords = options.coords;
+    var numberOfSamplesAcross = options.numberOfSamplesAcross;
+    var numberOfSamplesDown = options.numberOfSamplesDown;
+    var ymax = options.ymax;
+    var xmin = options.xmin;
     console.log('starting getRasters with options:', options);
     // called if georaster was constructed from URL and we need to get
     // data separately for each tile
@@ -85,9 +98,10 @@ var GeoRasterLayer = L.GridLayer.extend({
       var mapPoint = L.point(xCenterInMapPixels, yCenterInMapPixels);
       console.log('mapPoint:', mapPoint);
 
-      var _map$unproject = _this._map.unproject(mapPoint, coords.z),
-          lat = _map$unproject.lat,
-          lng = _map$unproject.lng;
+      // const { lat, lng } = this._map.unproject(mapPoint, coords.z);
+      var unproject = _this._map.unproject(mapPoint, coords.z);
+      var lat = unproject.lat;
+      var lng = unproject.lng;
 
       if (_this.projection === 4326) {
         return {
@@ -127,20 +141,21 @@ var GeoRasterLayer = L.GridLayer.extend({
   },
 
   createTile: function createTile(coords, done) {
-    var _this2 = this;
-
     var error = void 0;
 
     // Unpacking values for increased speed
     var georaster = this.georaster;
-    var pixelHeight = georaster.pixelHeight,
-        pixelWidth = georaster.pixelWidth;
-    var xmin = georaster.xmin,
-        ymax = georaster.ymax;
-    var rasters = this.rasters;
+    // const { pixelHeight,  pixelWidth } = georaster;
+    // const { xmin, ymax } = georaster;
+    // const { rasters } = this;
+
+    var pixelHeight = georaster.pixelHeight;
+    var pixelWidth = georaster.pixelWidth;
+    var xmin = georaster.xmin;
+    var ymax = georaster.ymax;
+    var raster = this;
 
     // these values are used so we don't try to sample outside of the raster
-
     var minLng = this._bounds.getWest();
     var maxLng = this._bounds.getEast();
     var maxLat = this._bounds.getNorth();
@@ -177,10 +192,10 @@ var GeoRasterLayer = L.GridLayer.extend({
       rasterPixelsDown = Math.ceil(Math.max(topLeft.y - bottomLeft.y, topRight.y - bottomRight.y) / pixelHeight);
     }
 
+    // const { resolution } = this.options;
     var resolution = this.options.resolution;
 
     // prevent sampling more times than number of pixels to display
-
     var numberOfSamplesAcross = Math.min(resolution, rasterPixelsAcross);
     var numberOfSamplesDown = Math.min(resolution, rasterPixelsDown);
 
@@ -199,6 +214,8 @@ var GeoRasterLayer = L.GridLayer.extend({
 
     // render asynchronously so tiles show up as they finish instead of all at once (which blocks the UI)
     setTimeout(function () {
+      var _this2 = this;
+
       var tileRasters = null;
       if (!rasters) {
         throw 'Sorry. Cloud Optimized GeoTIFFs are not yet supported';
@@ -213,10 +230,9 @@ var GeoRasterLayer = L.GridLayer.extend({
       var _loop = function _loop(h) {
         var yCenterInMapPixels = tileNwPoint.y + (h + 0.5) * heightOfSampleInScreenPixels;
         var latWestPoint = L.point(tileNwPoint.x, yCenterInMapPixels);
-
-        var _map$unproject2 = map.unproject(latWestPoint, coords.z),
-            lat = _map$unproject2.lat;
-
+        // const { lat } = map.unproject(latWestPoint, coords.z);
+        var unproject = map.unproject(latWestPoint, coords.z);
+        var lat = unproject.lat;
         if (lat > minLat && lat < maxLat) {
           (function () {
             var yInTilePixels = Math.round(h * heightOfSampleInScreenPixels);
@@ -224,10 +240,8 @@ var GeoRasterLayer = L.GridLayer.extend({
 
             var _loop2 = function _loop2(w) {
               var latLngPoint = L.point(tileNwPoint.x + (w + 0.5) * widthOfSampleInScreenPixels, yCenterInMapPixels);
-
-              var _map$unproject3 = map.unproject(latLngPoint, coords.z),
-                  lng = _map$unproject3.lng;
-
+              // const { lng } = map.unproject(latLngPoint, coords.z);
+              var lng = unproject.lng;
               if (lng > minLng && lng < maxLng) {
                 var xInRasterPixels = void 0;
                 if (_this2.projection === 4326) {
@@ -303,11 +317,10 @@ var GeoRasterLayer = L.GridLayer.extend({
     if (this.options.pixelValuesToColorFn) {
       return this.options.pixelValuesToColorFn(values);
     } else {
-      var _georaster = this.georaster,
-          mins = _georaster.mins,
-          noDataValue = _georaster.noDataValue,
-          ranges = _georaster.ranges;
-
+      // const { mins, noDataValue, ranges } = this.georaster;
+      var mins = this.georaster.mins;
+      var noDataValue = this.georaster.noDataValue;
+      var ranges = this.georaster.ranges;
       var numberOfValues = values.length;
       var haveDataForAllBands = values.every(function (value) {
         return value !== undefined && value !== noDataValue;
@@ -327,12 +340,12 @@ var GeoRasterLayer = L.GridLayer.extend({
   },
 
   initBounds: function initBounds(georaster) {
-    var projection = georaster.projection,
-        xmin = georaster.xmin,
-        xmax = georaster.xmax,
-        ymin = georaster.ymin,
-        ymax = georaster.ymax;
-
+    // const { projection, xmin, xmax, ymin, ymax } = georaster;
+    var projection = georaster.projection;
+    var xmin = georaster.xmin;
+    var xmax = georaster.xmax;
+    var ymin = georaster.ymin;
+    var ymax = georaster.ymax;
     if (this.debugLevel >= 1) console.log('georaster projection is', projection);
     if (projection === 4326) {
       if (this.debugLevel >= 1) console.log('georaster projection is in 4326');
@@ -352,8 +365,8 @@ var GeoRasterLayer = L.GridLayer.extend({
   },
 
   initProjector: function initProjector(georaster) {
+    // const { projection } = georaster;
     var projection = georaster.projection;
-
     if (isUTM(projection)) {
       if (!proj4) {
         throw 'proj4 must be found in the global scope in order to load a raster that uses a UTM projection';
