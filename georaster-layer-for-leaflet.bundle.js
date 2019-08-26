@@ -6,8 +6,10 @@
 //   getProj4String,
 // } = require('./utils/utm.js');
 
-var isUTM = require('./utils/utm.js');
-var getProj4String = require('./utils/utm.js');
+var utm = require('./utils/utm.js');
+
+var isUTM = utm.isUTM;
+var getProj4String = utm.getProj4String;
 
 var chroma = require('chroma-js');
 
