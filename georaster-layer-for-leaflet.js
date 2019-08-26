@@ -1,8 +1,11 @@
 /* global L, proj4 */
-const {
-  isUTM,
-  getProj4String,
-} = require('./utils/utm.js');
+// const {
+//   isUTM,
+//   getProj4String,
+// } = require('./utils/utm.js');
+
+const isUTM = require('./utils/utm.js');
+const getProj4String = require('./utils/utm.js');
 
 const chroma = require('chroma-js');
 
@@ -55,16 +58,24 @@ const GeoRasterLayer = L.GridLayer.extend({
   },
 
   getRasters: function (options) {
-    const {
-      tileNwPoint,
-      heightOfSampleInScreenPixels,
-      widthOfSampleInScreenPixels,
-      coords,
-      numberOfSamplesAcross,
-      numberOfSamplesDown,
-      ymax,
-      xmin,
-    } = options;
+    // const {
+    //   tileNwPoint,
+    //   heightOfSampleInScreenPixels,
+    //   widthOfSampleInScreenPixels,
+    //   coords,
+    //   numberOfSamplesAcross,
+    //   numberOfSamplesDown,
+    //   ymax,
+    //   xmin,
+    // } = options;
+    const tileNwPoint = options.tileNwPoint;
+    const heightOfSampleInScreenPixels = options.heightOfSampleInScreenPixels;
+    const widthOfSampleInScreenPixels = options.widthOfSampleInScreenPixels;
+    const coords = options.coords;
+    const numberOfSamplesAcross = options.numberOfSamplesAcross;
+    const numberOfSamplesDown = options.numberOfSamplesDown;
+    const ymax = options.ymax;
+    const xmin = options.xmin;
     console.log('starting getRasters with options:', options);
     // called if georaster was constructed from URL and we need to get
     // data separately for each tile
@@ -82,7 +93,10 @@ const GeoRasterLayer = L.GridLayer.extend({
       const mapPoint = L.point(xCenterInMapPixels, yCenterInMapPixels);
       console.log('mapPoint:', mapPoint);
 
-      const { lat, lng } = this._map.unproject(mapPoint, coords.z);
+      // const { lat, lng } = this._map.unproject(mapPoint, coords.z);
+      const unproject = this._map.unproject(mapPoint, coords.z);
+      const lat = unproject.lat;
+      const lng = unproject.lng;
 
       if (this.projection === 4326) {
         return {
@@ -122,9 +136,15 @@ const GeoRasterLayer = L.GridLayer.extend({
 
     // Unpacking values for increased speed
     const georaster = this.georaster;
-    const { pixelHeight,  pixelWidth } = georaster;
-    const { xmin, ymax } = georaster;
-    const { rasters } = this;
+    // const { pixelHeight,  pixelWidth } = georaster;
+    // const { xmin, ymax } = georaster;
+    // const { rasters } = this;
+
+    const pixelHeight = georaster.pixelHeight;
+    const pixelWidth = georaster.pixelWidth;
+    const xmin = georaster.xmin;
+    const ymax = georaster.ymax;
+    const raster = this;
 
     // these values are used so we don't try to sample outside of the raster
     const minLng = this._bounds.getWest();
@@ -162,7 +182,8 @@ const GeoRasterLayer = L.GridLayer.extend({
       rasterPixelsDown = Math.ceil(Math.max(topLeft.y - bottomLeft.y, topRight.y - bottomRight.y) / pixelHeight);
     }
 
-    const { resolution } = this.options;
+    // const { resolution } = this.options;
+    const resolution = this.options;
 
     // prevent sampling more times than number of pixels to display
     const numberOfSamplesAcross = Math.min(resolution, rasterPixelsAcross);
@@ -197,13 +218,16 @@ const GeoRasterLayer = L.GridLayer.extend({
       for (let h = 0; h < numberOfSamplesDown; h++) {
         const yCenterInMapPixels = tileNwPoint.y + (h + 0.5) * heightOfSampleInScreenPixels;
         const latWestPoint = L.point(tileNwPoint.x, yCenterInMapPixels);
-        const { lat } = map.unproject(latWestPoint, coords.z);
+        // const { lat } = map.unproject(latWestPoint, coords.z);
+        const unproject = map.unproject(latWestPoint, coords.z);
+        const lat = unproject.lat;
         if (lat > minLat && lat < maxLat) {
           const yInTilePixels = Math.round(h * heightOfSampleInScreenPixels);
           let yInRasterPixels = this.projection === 4326 ? Math.floor( (maxLat - lat) / pixelHeight ) : null;
           for (let w = 0; w < numberOfSamplesAcross; w++) {
             const latLngPoint = L.point(tileNwPoint.x + (w + 0.5) * widthOfSampleInScreenPixels, yCenterInMapPixels);
-            const { lng } = map.unproject(latLngPoint, coords.z);
+            // const { lng } = map.unproject(latLngPoint, coords.z);
+            const lng = unproject.lng;
             if (lng > minLng && lng < maxLng) {
               let xInRasterPixels;
               if (this.projection === 4326) {
@@ -266,7 +290,10 @@ const GeoRasterLayer = L.GridLayer.extend({
     if(this.options.pixelValuesToColorFn) {
       return this.options.pixelValuesToColorFn(values);
     } else {
-      const { mins, noDataValue, ranges } = this.georaster;
+      // const { mins, noDataValue, ranges } = this.georaster;
+      const mins = this.georaster.mins;
+      const noDataValue = this.georaster.noDataValue;
+      const ranges = this.georaster.ranges;
       const numberOfValues = values.length;
       const haveDataForAllBands = values.every(value => value !== undefined && value !== noDataValue);
       if (haveDataForAllBands) {
@@ -284,7 +311,12 @@ const GeoRasterLayer = L.GridLayer.extend({
   },
 
   initBounds: function (georaster) {
-    const { projection, xmin, xmax, ymin, ymax } = georaster;
+    // const { projection, xmin, xmax, ymin, ymax } = georaster;
+    const projection = georaster.projection;
+    const xmin = georaster.xmin;
+    const xmax = georaster.xmax;
+    const ymin = georaster.ymin;
+    const ymax = georaster.ymax;
     if (this.debugLevel >= 1) console.log('georaster projection is', projection);
     if (projection === 4326) {
       if (this.debugLevel >= 1) console.log('georaster projection is in 4326');
@@ -304,7 +336,8 @@ const GeoRasterLayer = L.GridLayer.extend({
   },
 
   initProjector: function (georaster) {
-    const { projection } = georaster;
+    // const { projection } = georaster;
+    const projection = georaster;
     if (isUTM(projection)) {
       if (!proj4) {
         throw 'proj4 must be found in the global scope in order to load a raster that uses a UTM projection';
