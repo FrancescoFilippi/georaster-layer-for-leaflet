@@ -217,15 +217,15 @@ var GeoRasterLayer = L.GridLayer.extend({
       var _this2 = this;
 
       var tileRasters = null;
-      if (!rasters) {
-        throw 'Sorry. Cloud Optimized GeoTIFFs are not yet supported';
-        /*
-        tileRasters = await this.getRasters({
-          tileNwPoint, heightOfSampleInScreenPixels,
-          widthOfSampleInScreenPixels, coords, pixelHeight, pixelWidth,
-          numberOfSamplesAcross, numberOfSamplesDown, ymax, xmin});
-        */
-      }
+      // if (!rasters) {
+      //   throw 'Sorry. Cloud Optimized GeoTIFFs are not yet supported';
+      /*
+      tileRasters = await this.getRasters({
+        tileNwPoint, heightOfSampleInScreenPixels,
+        widthOfSampleInScreenPixels, coords, pixelHeight, pixelWidth,
+        numberOfSamplesAcross, numberOfSamplesDown, ymax, xmin});
+      */
+      // }
 
       var _loop = function _loop(h) {
         var yCenterInMapPixels = tileNwPoint.y + (h + 0.5) * heightOfSampleInScreenPixels;

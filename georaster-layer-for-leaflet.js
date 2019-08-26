@@ -211,15 +211,15 @@ const GeoRasterLayer = L.GridLayer.extend({
     // render asynchronously so tiles show up as they finish instead of all at once (which blocks the UI)
     setTimeout(function() {
       const tileRasters = null;
-      if (!rasters) {
-        throw 'Sorry. Cloud Optimized GeoTIFFs are not yet supported';
+      // if (!rasters) {
+      //   throw 'Sorry. Cloud Optimized GeoTIFFs are not yet supported';
         /*
         tileRasters = await this.getRasters({
           tileNwPoint, heightOfSampleInScreenPixels,
           widthOfSampleInScreenPixels, coords, pixelHeight, pixelWidth,
           numberOfSamplesAcross, numberOfSamplesDown, ymax, xmin});
         */
-      }
+      // }
 
       for (let h = 0; h < numberOfSamplesDown; h++) {
         const yCenterInMapPixels = tileNwPoint.y + (h + 0.5) * heightOfSampleInScreenPixels;
