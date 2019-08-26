@@ -20,7 +20,9 @@ function getZone (projection) {
 function getProj4String (projection) {
   const zone = getZone(projection);
   const hemisphere = getHemisphere(projection);
-  return `+proj=utm +zone=${zone}${hemisphere === 'S' ? ' +south ' : ' '}+ellps=WGS84 +datum=WGS84 +units=m +no_defs`;
+  return '+proj=utm +zone=' + zone + (hemisphere === 'S' ? ' +south ' : ' ')+ 'ellps=WGS84 +datum=WGS84 +units=m +no_defs';
 }
 
-module.exports = { isUTM, getHemisphere, getProj4String };
+module.exports.isUTM = isUTM;
+module.exports.getHemisphere = getHemisphere;
+module.exports.getProj4String = getProj4String;

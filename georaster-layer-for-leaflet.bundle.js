@@ -198,7 +198,7 @@ var GeoRasterLayer = L.GridLayer.extend({
     var tileNwPoint = coords.scaleBy(tileSize);
 
     // render asynchronously so tiles show up as they finish instead of all at once (which blocks the UI)
-    setTimeout(async function () {
+    setTimeout(function () {
       var tileRasters = null;
       if (!rasters) {
         throw 'Sorry. Cloud Optimized GeoTIFFs are not yet supported';
