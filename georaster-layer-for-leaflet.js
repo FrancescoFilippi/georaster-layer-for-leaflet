@@ -183,7 +183,7 @@ const GeoRasterLayer = L.GridLayer.extend({
     }
 
     // const { resolution } = this.options;
-    const resolution = this.options;
+    const resolution = this.options.resolution;
 
     // prevent sampling more times than number of pixels to display
     const numberOfSamplesAcross = Math.min(resolution, rasterPixelsAcross);
@@ -337,7 +337,7 @@ const GeoRasterLayer = L.GridLayer.extend({
 
   initProjector: function (georaster) {
     // const { projection } = georaster;
-    const projection = georaster;
+    const projection = georaster.projection;
     if (isUTM(projection)) {
       if (!proj4) {
         throw 'proj4 must be found in the global scope in order to load a raster that uses a UTM projection';
